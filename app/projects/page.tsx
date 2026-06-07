@@ -23,9 +23,9 @@ export default async function ProjectsPage() {
 	}, {} as Record<string, number>);
 
 	const featured = allProjects.find(
-		(project) => project.slug === "neuroscience",
+		(project) => project.slug === "bjj-pitch",
 	)!;
-	const top2 = allProjects.find((project) => project.slug === "neurotech")!;
+	const top2 = allProjects.find((project) => project.slug === "neuroscience")!;
 	const top3 = allProjects.find((project) => project.slug === "quote")!;
 	const sorted = allProjects
 		.filter((p) => p.published)
