@@ -1,0 +1,261 @@
+---
+title: Designing the Chi’Va Bilateral Flame Bar
+description: >
+  An animated left-right focus cue using the Chi’Va flame logo, glow aura, and trailing light streak for a Bilateral EMDR orb focus tool.
+date: "2026-06-26"
+url: https://chivaapp.com/
+published: true
+---
+
+# Case Study: Designing the Chi’Va Bilateral Flame Bar
+
+## Project
+
+Chi’Va 2.0
+Hero homepage interaction and Focus Mode visual system
+
+## Feature
+
+Bilateral Flame Bar: an animated left-right focus cue using the Chi’Va flame logo, glow aura, and trailing light streak.
+
+## Overview
+
+The Bilateral Flame Bar began as a Focus Mode tool concept and evolved into a signature Chi’Va interaction for the homepage hero. The goal was to create a visual cue that immediately communicates bilateral movement, calm focus, and mental-performance training without making the interface feel clinical, generic, or overly abstract.
+
+The finished version uses the Chi’Va logo flame as the moving cue, a glowing horizontal bar as the movement path, endpoint markers to clarify direction, and a layered motion trail to make the animation feel smooth, premium, and alive.
+
+The component is now implemented on the landing hero as:
+
+```tsx
+<div className="h-20"></div>
+<BilateralFlameBar isRunning durationSeconds={2.3} showTrail />
+```
+
+The temporary spacer will be replaced with layout spacing such as `mt-20` once the hero section is cleaned up.
+
+## The Challenge
+
+Chi’Va needed a visual language for bilateral stimulation that felt like part of the product, not a stock wellness animation.
+
+The cue had to balance several needs:
+
+* It needed to clearly show left-right movement.
+* It needed to feel calm and focused, not flashy or distracting.
+* It needed to use the Chi’Va brand mark instead of a generic orb, dot, or sci-fi object.
+* It needed to work inside the Focus Mode tool and also adapt to the homepage hero.
+* It needed to support fast visual prototyping without locking the product into a heavy animation library.
+
+The first mockups showed the right general direction, but the movement trail required several rounds of refinement. Early versions using logo afterimages felt too literal and too busy. The final solution moved away from repeated logo ghosts and toward a soft layered glow trail behind a crisp moving logo.
+
+## Design Direction
+
+The visual target was a dark, premium Chi’Va shell:
+
+* midnight navy and deep indigo
+* violet and cyan lighting
+* soft glow, not harsh neon
+* a centered horizontal bilateral path
+* one clear moving cue
+* enough visual energy to feel active
+* enough restraint to avoid distraction
+
+The component had to feel like a tool for focus, not a decorative flourish.
+
+## Interaction Model
+
+The interaction is simple:
+
+1. A horizontal glowing bar defines the bilateral path.
+2. Endpoint markers show the left and right bounds.
+3. The Chi’Va flame logo travels from one side to the other.
+4. A soft aura breathes around the logo.
+5. A trailing glow follows behind the moving cue.
+6. Reduced-motion users see a static centered cue instead of continuous movement.
+
+The result is a focused visual rhythm: left, right, left, right.
+
+## Component Architecture
+
+The component is intentionally small and configurable.
+
+It accepts:
+
+```tsx
+isRunning?: boolean;
+durationSeconds?: number;
+showGhosts?: boolean;
+showTrail?: boolean;
+logoSrc?: string;
+className?: string;
+```
+
+The React component controls only structure and state:
+
+* whether the animation is running
+* how fast it moves
+* whether ghost markers show
+* whether the motion trail shows
+* which logo image is used
+
+The motion details live in CSS. This keeps the component easy to reuse in both the homepage and Focus Mode.
+
+## CSS Motion System
+
+The animation is driven through CSS variables:
+
+```css
+--bilateral-duration
+--bilateral-play-state
+```
+
+Those values are passed from the React component, allowing the same bar to run slowly in Focus Mode or faster in the hero section.
+
+The main logo uses the `bilateral-flame-travel` animation:
+
+```css
+@keyframes bilateral-flame-travel {
+	0% {
+		left: 0;
+		filter: hue-rotate(-8deg);
+	}
+
+	100% {
+		left: 100%;
+		filter: hue-rotate(18deg);
+	}
+}
+```
+
+The cue is centered on the moving point with:
+
+```css
+transform: translate(-50%, -50%);
+```
+
+This allows the logo to travel cleanly from edge to edge.
+
+## Trail Iteration
+
+The most important design breakthrough came from changing the trail from “logo afterimages” into “blurred light blocks.”
+
+The early approach used delayed copies of the logo. That worked technically, but visually it made the trail feel cluttered. The moving logo lost its crispness because the viewer saw too many repeated flame shapes.
+
+The better solution was to keep the logo crisp and place abstract glow layers behind it.
+
+The trail now uses six animated spans:
+
+```tsx
+<div className="bilateral-flame-motion-trail blur-sm" aria-hidden="true">
+	<span />
+	<span />
+	<span />
+	<span />
+	<span />
+	<span />
+</div>
+```
+
+Each span has its own size, opacity, blur, and animation delay. Together they create a tapered streak that follows the logo across the bar.
+
+The trail layers are not semantic content. They are visual atmosphere only, so they are hidden from assistive technology with `aria-hidden="true"`.
+
+## Visual Refinement
+
+Several details were tuned during the process:
+
+### 1. The trail needed to be light, not object-based
+
+The trail became glowing rectangles rather than repeated logo marks. This made the animation feel smoother and less visually noisy.
+
+### 2. The logo needed to stay crisp
+
+The Chi’Va flame remains the primary moving object. The trail supports it without competing with it.
+
+### 3. The gradient direction mattered
+
+Because the trail blocks became taller rectangles, the gradient direction changed how the color read. A left-right gradient created vertical color bands. Adjusting the gradient direction made the glow feel more horizontal and atmospheric.
+
+### 4. Opacity needed stronger falloff
+
+The first trail layers stayed too visible. Reducing opacity across the delayed spans helped the trail feel like motion blur instead of multiple objects.
+
+### 5. Motion state needed to remain controllable
+
+The animation can be paused with `isRunning={false}` because the play state is controlled through CSS variables.
+
+## Accessibility Considerations
+
+The component includes reduced-motion support:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+	.bilateral-flame-cue {
+		left: 50%;
+		animation: none;
+	}
+
+	.bilateral-flame-aura {
+		animation: none;
+	}
+
+	.bilateral-flame-motion-trail span {
+		left: 50%;
+		animation: none;
+		opacity: 0;
+	}
+}
+```
+
+This keeps the visual identity intact while avoiding forced motion for users who have reduced-motion preferences enabled.
+
+## Hero Implementation
+
+For the homepage hero, the component is used as a brand-defining motion element:
+
+```tsx
+<BilateralFlameBar isRunning durationSeconds={2.3} showTrail />
+```
+
+The `2.3` second duration gives the homepage a more energetic feel than a slow Focus Mode round. Focus Mode can use a slower duration later, while the homepage can use a faster movement to communicate the product’s rhythm quickly.
+
+This makes the component flexible across two contexts:
+
+* Homepage: expressive brand motion
+* Focus Mode: functional bilateral cue
+
+## Outcome
+
+The final Bilateral Flame Bar gives Chi’Va a distinctive interactive signature.
+
+It communicates:
+
+* bilateral movement
+* focus
+* rhythm
+* calm activation
+* product identity
+* self-directed mental-performance work
+
+The component also avoids the common visual traps of wellness and mental-health interfaces. It does not look clinical, mystical, medical, or generic. It feels like a Chi’Va-native tool.
+
+## What Worked
+
+The strongest design decision was keeping the component primitive-first:
+
+* one React component
+* one CSS file
+* CSS variables for timing and play state
+* optional trail and ghost layers
+* no animation library
+* no overbuilt state machine
+* no one-off hero-only code
+
+This keeps the component reusable, understandable, and easy to tune.
+
+## Final Takeaway
+
+The Bilateral Flame Bar turned a protocol interaction into a brand interaction.
+
+It is not just decoration. It demonstrates the central Chi’Va pattern: structured left-right movement, contained focus, and calm control.
+
+The same object can now support both marketing and product flow, giving Chi’Va a consistent visual and functional language across the homepage, dashboard shell, and Focus Mode experience.
